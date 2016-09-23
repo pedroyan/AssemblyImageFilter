@@ -13,6 +13,9 @@ exit_menu: 		.asciiz "5 - Exit\n"
 input_menu:		.asciiz "Digite o valor correspondente a operacao desejada: "
 digiteValorX:		.asciiz "\nDigite o valor de X:"
 digiteValorY:		.asciiz "\nDigite o valor de Y:"
+digiteValorR:		.asciiz "\nDigite o valor de R:"
+digiteValorG:		.asciiz "\nDigite o valor de G:"
+digiteValorB:		.asciiz "\nDigite o valor de B:"
 red:			.asciiz "\nRed:"
 green:			.asciiz "\nGreen:"
 blue:			.asciiz "\nBlue:"
@@ -52,7 +55,7 @@ menu:
 	
 	beq $v0, 1, loadImg 
 	beq $v0, 2, getPixel # -> get_pixel
-	#beq $v0, 3, set_pixel # -> set_pixel
+	beq $v0, 3, setPixel # -> set_pixel
 	#beq $v0, 4, grey # -> grey
 	beq $v0, 5, exit # -> exit
 	
@@ -72,6 +75,11 @@ loadImg:
 	li $t1,0
 	la $t3,memory_buffer
 	jal LoopBuffer
+	
+	#fecha arquivo
+	move $a0,$t2
+	li $v0,16
+	syscall
 	j menu
 	
 getPixel:
@@ -123,6 +131,63 @@ getPixel:
 	syscall
 	
 	j menu
+
+setPixel:
+	addi $v0, $zero, 4 
+	la $a0, digiteValorX
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $t0,$v0
+	
+	addi $v0, $zero, 4 
+	la $a0, digiteValorY
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $a1,$v0
+	move $a0,$t0
+	addi $a2,$zero,0x10040000
+	jal GetPixelAddress
+	
+	move $t4,$v0
+	
+	#t3: MemoryBuffer
+	#t4: PixelAddress
+	la $t3, memory_buffer
+	sw $zero,0($t3) # zera buffer
+	
+	addi $v0, $zero, 4 
+	la $a0, digiteValorR
+	syscall
+	
+	li $v0, 5
+	syscall
+	sb $v0,2($t3)
+	
+	addi $v0, $zero, 4 
+	la $a0, digiteValorG
+	syscall
+	
+	li $v0, 5
+	syscall
+	sb $v0,1($t3)
+	
+	addi $v0, $zero, 4 
+	la $a0, digiteValorB
+	syscall
+	
+	li $v0, 5
+	syscall
+	sb $v0,0($t3)
+	
+	lw $t0,0($t3)
+	sw $t0,0($t4)
+	
+	j menu
+	
 	
 LoopBuffer:
 	#t0: Area da Heap
