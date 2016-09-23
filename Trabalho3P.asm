@@ -49,7 +49,7 @@ menu:
 	#beq $v0, 2, get_pixel # -> get_pixel
 	#beq $v0, 3, set_pixel # -> set_pixel
 	#beq $v0, 4, grey # -> grey
-	#beq $v0, 5, exit # -> exit
+	beq $v0, 5, exit # -> exit
 	
 	j menu # loop
 
@@ -66,12 +66,8 @@ loadImg:
 	addi $t0,$zero,0x10040000 
 	li $t1,0
 	la $t3,memory_buffer
-	addi $sp, $sp, -4
-	sw $ra,0($sp)
 	jal LoopBuffer
-	lw $ra,0($sp)
-	addi $sp, $sp, 4
-	j retorno
+	j menu
 	
 
 LoopBuffer:
