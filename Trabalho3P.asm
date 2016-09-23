@@ -54,10 +54,10 @@ menu:
 	syscall 
 	
 	beq $v0, 1, loadImg 
-	beq $v0, 2, getPixel # -> get_pixel
-	beq $v0, 3, setPixel # -> set_pixel
-	#beq $v0, 4, grey # -> grey
-	beq $v0, 5, exit # -> exit
+	beq $v0, 2, getPixel 
+	beq $v0, 3, setPixel 
+	beq $v0, 4, grey 
+	beq $v0, 5, exit 
 	
 	j menu # loop
 
@@ -201,6 +201,7 @@ LoopBuffer:
 	addi $a2, $zero, 3
 	syscall
 	beq $v0, $zero, retorno
+	addi $s7,$s7,3 #tamanhoDoArquivo
 	lw $t1, 0($t3)
 	sw $t1, 0($t0)
 	addi $t0,$t0,4
@@ -256,7 +257,47 @@ GetColumnPixel:
 	addi $t1,$t1,4
 	addi $t2,$t2,1
 	j GetColumnPixel
+grey:
+	addi $t2,$zero,0
+	addi $t0,$zero,0x10040000
+	la $t7, memory_buffer
+	sw $zero, 0($t7)
+	jal tonsDeCinza
+	j menu
+
+tonsDeCinza:
+	#Input -> t0: enderecoHeap
+	#t1: SomaDaMedia
+	#t2: contador
+	#t3: comparador
+	#t4: R
+	#t5: G
+	#t6: B
+	#t7: Buffer
+	#s7: tamanho do arquivo (variável global)
 	
+	slt $t3,$t2,$s7
+	beq $t3,$zero,retorno
+	
+	lbu $t4,2($t0)
+	lbu $t5,1($t0)
+	lbu $t6,0($t0)
+	
+	add $t1,$t4,$t5
+	add $t1,$t1,$t6
+	
+	div $t1,$t1,3
+	#montar rgb no memory buffer ($t7)
+	sb $t1,2($t7)
+	sb $t1,1($t7)
+	sb $t1,0($t7)
+	lw $t8,0($t7)
+	
+	sw $t8,0($t0) 
+	
+	addi $t0,$t0,4 
+	addi $t2,$t2,1
+	j tonsDeCinza	
 ReturnValue:
 	move $v0,$t1
 	jr $ra
