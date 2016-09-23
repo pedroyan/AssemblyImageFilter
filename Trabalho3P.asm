@@ -176,7 +176,7 @@ GetLinePixel:
 	
 	slt $t3,$t2,$t0
 	beq $t3,$zero,ReturnValue
-	add $t1,$t1,256 #64*4
+	addi $t1,$t1,256 #64*4
 	addi $t2,$t2,1
 	j GetLinePixel	
 	
@@ -188,9 +188,9 @@ GetColumnPixel:
 	#v0: endereçoHeap_CoordY
 	slt $t3,$t2,$t0
 	beq $t3,$zero,ReturnValue
-	add $t1,$t1,4
+	addi $t1,$t1,4
 	addi $t2,$t2,1
-	j GetLinePixel
+	j GetColumnPixel
 	
 ReturnValue:
 	move $v0,$t1
